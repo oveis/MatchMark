@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import android.util.Log;
 import android.widget.ImageView;
 
 class DBLevel1 {
@@ -21,8 +20,10 @@ class DBLevel1 {
 }
 
 public class BoardManager {
-	private Board mBoard;
-	private int mPrevCardPosition = -1; 
+    
+    private Board mBoard;
+	private int mPrevCardPosition = -1;
+	private ImageView mPrevImageView = null;
 	
 	public Board getBoard() {
 	    return mBoard;
@@ -46,9 +47,10 @@ public class BoardManager {
 	 */
 	public boolean clickCard(final ImageView imageView, final int position) {
 	    if(!mBoard.isMatchedCard(position)) {
-    	    if(mPrevCardPosition == -1) {
+	        if(mPrevCardPosition == -1) {
                 imageView.setImageResource(mBoard.getCard(position).getId());
                 mPrevCardPosition = position;
+                mPrevImageView = imageView;
                 return true;
             } else if(mPrevCardPosition != position){
                 imageView.setImageResource(mBoard.getCard(position).getId());
@@ -59,9 +61,10 @@ public class BoardManager {
                     mBoard.setMatchedCards(mPrevCardPosition, position);
                 } else {
                     imageView.setImageResource(mBoard.getDefaultCardId());
-                    imageView.setImageResource(mBoard.getDefaultCardId());
+                    mPrevImageView.setImageResource(mBoard.getDefaultCardId());
                 }
                 mPrevCardPosition = -1;
+                mPrevImageView = null;
                 return true;
     	    }
 	    }

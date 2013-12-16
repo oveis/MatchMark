@@ -38,8 +38,9 @@ public class GameActivity extends Activity {
         	@Override
 			public void onItemClick(final AdapterView<?> parent, final View view, 
 			        final int position, final long id) {
-        	    //mGame.clickCard((ImageView)view, position);
-        	    mGame.clickCard((ImageView)boardAdapter.getView(1, null, parent), 1);
+        	    mGame.clickCard((ImageView)view, position);
+        	    //mGame.clickCard((ImageView)boardAdapter.getView(1, null, parent), 1);
+        	   
 			}
         });
     }
