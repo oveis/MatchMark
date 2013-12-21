@@ -6,18 +6,24 @@ import com.game.worldlandmarkfinder.R;
 import com.game.worldlandmarkfinder.WorldLandmarkFinderGame;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Chronometer;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class GameActivity extends Activity {
 
     private WorldLandmarkFinderGame mGame;
+    private TextView mTxtTimer;
     
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -27,7 +33,8 @@ public class GameActivity extends Activity {
         setContentView(R.layout.game_activity);
         getActionBar().setTitle("World Landmark Finder");
         
-        mGame = new WorldLandmarkFinderGame();
+        mTxtTimer = (TextView) findViewById(R.id.txtTimer);
+        mGame = new WorldLandmarkFinderGame(this);
         
         final BoardAdapter boardAdapter = new BoardAdapter(this, mGame.getBoard());
         final GridView gridView = (GridView) findViewById(R.id.boardView);
@@ -39,10 +46,19 @@ public class GameActivity extends Activity {
 			public void onItemClick(final AdapterView<?> parent, final View view, 
 			        final int position, final long id) {
         	    mGame.clickCard((ImageView)view, position);
-        	    //mGame.clickCard((ImageView)boardAdapter.getView(1, null, parent), 1);
-        	   
 			}
         });
+        
+        mGame.play();
+    }
+    
+    public void showScoreScreen() {
+        final Intent intentScoreActivity = new Intent(GameActivity.this, ScoreActivity.class);
+        startActivity(intentScoreActivity);
+    }
+    
+    public void setTimerText(final String text) {
+        mTxtTimer.setText(text);
     }
     
     @Override
@@ -81,5 +97,4 @@ public class GameActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-    
 }

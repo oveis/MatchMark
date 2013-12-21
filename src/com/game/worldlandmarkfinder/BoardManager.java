@@ -21,6 +21,12 @@ class DBLevel1 {
 
 public class BoardManager {
     
+    static final int CARD_SELECT = 0;
+    static final int CARDS_MATCH_SUCCESS = 1;
+    static final int CARDS_MATCH_FAILURE = 2;
+    static final int WRONG_CARD_SELECT = 3;
+    static final int ALL_CARDS_MATCHED = 4;
+    
     private Board mBoard;
 	private int mPrevCardPosition = -1;
 	private ImageView mPrevImageView = null;
@@ -38,20 +44,16 @@ public class BoardManager {
         }
         final long seed = System.nanoTime();
         Collections.shuffle(cards, new Random(seed));
-	    mBoard = new Board(cards, dbLevel1.mDefaultCardId, dbLevel1.mBoardCols, dbLevel1.mBoardRows);
+        mBoard = new Board(cards, dbLevel1.mDefaultCardId, dbLevel1.mBoardCols, dbLevel1.mBoardRows);
     }
 	
-	/*
-	 * @return True if card can flip
-	 *         False if card cannot flip because that is already either flipped or matched.
-	 */
-	public boolean clickCard(final ImageView imageView, final int position) {
+	public int clickCard(final ImageView imageView, final int position) {
 	    if(!mBoard.isMatchedCard(position)) {
 	        if(mPrevCardPosition == -1) {
                 imageView.setImageResource(mBoard.getCard(position).getId());
                 mPrevCardPosition = position;
                 mPrevImageView = imageView;
-                return true;
+                return CARD_SELECT;
             } else if(mPrevCardPosition != position){
                 imageView.setImageResource(mBoard.getCard(position).getId());
                 final int prevCardId = mBoard.getCard(mPrevCardPosition).getId();
@@ -59,16 +61,23 @@ public class BoardManager {
                 
                 if(prevCardId == curCardId) {
                     mBoard.setMatchedCards(mPrevCardPosition, position);
+                    if(mBoard.isCompleted()) {
+                        return ALL_CARDS_MATCHED;
+                    }
+                    mPrevCardPosition = -1;
+                    mPrevImageView = null;
+                    return CARDS_MATCH_SUCCESS;
                 } else {
+                    // re-flip selected cards
                     imageView.setImageResource(mBoard.getDefaultCardId());
                     mPrevImageView.setImageResource(mBoard.getDefaultCardId());
-                }
-                mPrevCardPosition = -1;
-                mPrevImageView = null;
-                return true;
+                    mPrevCardPosition = -1;
+                    mPrevImageView = null;
+                    return CARDS_MATCH_FAILURE;
+                }                
     	    }
 	    }
-	    return false;
+	    return WRONG_CARD_SELECT;
 	}
 	
 	public void resetBoard(final Set<Landmark> landmarks, final int width, final int height) {

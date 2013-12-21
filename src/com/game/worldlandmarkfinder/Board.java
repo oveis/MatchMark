@@ -30,6 +30,15 @@ public class Board {
         return mMatchedCards[position];
     }
     
+    public boolean isCompleted() {
+        for(int i=0; i<mMatchedCards.length; i++) {
+            if(!mMatchedCards[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     public void setMatchedCards(final int position1, final int position2) {
         mMatchedCards[position1] = true;
         mMatchedCards[position2] = true;
