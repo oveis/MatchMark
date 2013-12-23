@@ -1,18 +1,14 @@
 package com.game.worldlandmarkfinder;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import com.game.activities.GameActivity;
-import com.game.activities.HomeActivity;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 public class WorldLandmarkFinderGame {
+    
+    private static final long INIT_GAME_TIME = 30000L;
     
 	private BoardManager mBoardManager;
 	private String mPlayerName;
@@ -20,6 +16,7 @@ public class WorldLandmarkFinderGame {
 	private long mTimeRemainingMillis;
 	private int mNumOfTry = 0;
 	private long mStartTime = 0L;
+	private int mScore = 0;
     
 	private Handler mTimerHandler = new Handler();
 	
@@ -32,6 +29,7 @@ public class WorldLandmarkFinderGame {
 	    mBoardManager = new BoardManager();
 	    mBoardManager.createBoard();
 	    getGameData();
+	    mTimeRemainingMillis = 30000L;
 	}
 	
 	public String getPlayerName() {
@@ -47,7 +45,11 @@ public class WorldLandmarkFinderGame {
 	}
 	
 	public void getGameData() {
-	    mTimeRemainingMillis = 50000L;
+	    // Get Game Data from DB
+	}
+	
+	public int getScore() {
+	    return mScore;
 	}
 	
 	private void startTimer() {
@@ -72,8 +74,12 @@ public class WorldLandmarkFinderGame {
 	            mGameActivity.setTimerText("" + mins + ":" + String.format("%02d", secs) 
 	                    + ":" + String.format("%02d", milliseconds));
 	            mTimerHandler.postDelayed(this, 0);
+	            if(mTimeRemainingMillis <= 10000L) {
+	                mGameActivity.changeTimerColor("#FF0000");
+	            }
             } else {
                 mGameActivity.setTimerText("0:00:00");
+                mScore = 0;
                 gameOver();
             } 
 	    }
@@ -83,6 +89,7 @@ public class WorldLandmarkFinderGame {
         final int result = mBoardManager.clickCard(imageView, position);
         switch(result) {
             case BoardManager.ALL_CARDS_MATCHED:
+                calculateScore();
                 gameOver();
                 break;
             case BoardManager.CARDS_MATCH_SUCCESS:
@@ -108,7 +115,12 @@ public class WorldLandmarkFinderGame {
 		
 	}
 	
-	public void gameOver() {
+	private void gameOver() {
 	    mGameActivity.showScoreScreen();
+	}
+	
+	private void calculateScore() {
+	    final int numOfRemainTries = (30 - mNumOfTry > 0) ? (30 - mNumOfTry) : 0;
+	    mScore = (int)(INIT_GAME_TIME- mTimeRemainingMillis) + numOfRemainTries * 1000;
 	}
 }

@@ -7,13 +7,20 @@ import com.game.worldlandmarkfinder.R.menu;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.widget.TextView;
 
 public class ScoreActivity extends Activity {
 
+    private TextView mTxtScore;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.score_activity);
+        
+        mTxtScore = (TextView) findViewById(R.id.txtScore);
+        final int score = getIntent().getExtras().getInt("score");
+        mTxtScore.setText(String.valueOf(score));
     }
 
     @Override

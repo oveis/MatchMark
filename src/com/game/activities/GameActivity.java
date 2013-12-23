@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -54,11 +55,16 @@ public class GameActivity extends Activity {
     
     public void showScoreScreen() {
         final Intent intentScoreActivity = new Intent(GameActivity.this, ScoreActivity.class);
+        intentScoreActivity.putExtra("score", mGame.getScore());
         startActivity(intentScoreActivity);
     }
     
     public void setTimerText(final String text) {
         mTxtTimer.setText(text);
+    }
+    
+    public void changeTimerColor(final String color) {
+        mTxtTimer.setTextColor(Color.parseColor(color));
     }
     
     @Override
