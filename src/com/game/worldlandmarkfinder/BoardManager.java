@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -19,7 +20,7 @@ class DBLevel1 {
     int mBoardRows = 3;
     int mBoardCols = 4;
 }
-
+ 
 public class BoardManager {
     
     // TODO: use enum
@@ -33,6 +34,7 @@ public class BoardManager {
     // The position of the card previously selected.  -1 if there is none.
 	private int mPrevCardPosition = -1;
 	private ImageView mPrevImageView = null;
+	private ImageView mCurrImageView = null;
 	
 	public Board getBoard() {
 	    return mBoard;
@@ -50,18 +52,41 @@ public class BoardManager {
         mBoard = new Board(cards, dbLevel1.mDefaultCardId, dbLevel1.mBoardCols, dbLevel1.mBoardRows);
     }
 	
+	private class FlipCardsBackTask extends AsyncTask {
+	    @Override
+        protected Object doInBackground(Object... params) {
+	        Log.d("WLF", "enter doInBackgroud");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+     
+        @Override
+        protected void onPostExecute(Object obj) {
+            Log.d("WLF", "on Post Execution");
+            mCurrImageView.setImageResource(mBoard.getDefaultCardId());
+            mPrevImageView.setImageResource(mBoard.getDefaultCardId());
+            mPrevImageView = null;
+        }
+    }
+	
 	public int clickCard(final ImageView imageView, final int position) {
+	    mCurrImageView = imageView;
+	    
 	    // If a selected card does not produce a match
 	    if(!mBoard.isPositionAlreadyMatched(position)) {
 	        // If this is the first of two cards selected/flipped
 	        if(mPrevCardPosition == -1) {
-                imageView.setImageResource(mBoard.getCard(position).getId());
+	            mCurrImageView.setImageResource(mBoard.getCard(position).getId());
                 mPrevCardPosition = position;
-                mPrevImageView = imageView;
+                mPrevImageView = mCurrImageView;
                 return CARD_SELECT;
             // If this is the second of two cards selected/flipped
             } else if(mPrevCardPosition != position) {
-                imageView.setImageResource(mBoard.getCard(position).getId());
+                mCurrImageView.setImageResource(mBoard.getCard(position).getId());
  
                 final int prevCardId = mBoard.getCard(mPrevCardPosition).getId();
                 final int currCardId = mBoard.getCard(position).getId();
@@ -75,11 +100,8 @@ public class BoardManager {
                     mPrevImageView = null;
                     return CARDS_MATCH_SUCCESS;
                 } else {
-                    // re-flip selected cards
-                    imageView.setImageResource(mBoard.getDefaultCardId());
-                    mPrevImageView.setImageResource(mBoard.getDefaultCardId());
+                    new FlipCardsBackTask().execute();
                     mPrevCardPosition = -1;
-                    mPrevImageView = null;
                     return CARDS_MATCH_FAILURE;
                 }                
     	    }
