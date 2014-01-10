@@ -3,11 +3,13 @@ package com.game.worldlandmarkfinder;
 import java.util.List;
 
 public class Board {
-    private List<Card> mCards;
-    private boolean mMatchedCards[];
-    private int mDefaultCardId;
-    private int mBoardRows;
-    private int mBoardCols;
+    private final List<Card> mCards;
+    // a boolean array representing the state of whether or not a card has been
+    // successfully matched/found
+    private final boolean mMatchedCards[];
+    private final int mDefaultCardId; // TODO: move to Card class
+    private final int mBoardRows;
+    private final int mBoardCols;
     
     public Board(final List<Card> cards, final int defaultCardId, 
             final int boardRows, final int boardCols) {
@@ -26,13 +28,13 @@ public class Board {
         return mCards.get(position);
     }
     
-    public boolean isMatchedCard(final int position) {
+    public boolean isPositionAlreadyMatched(final int position) {
         return mMatchedCards[position];
     }
     
     public boolean isCompleted() {
-        for(int i=0; i<mMatchedCards.length; i++) {
-            if(!mMatchedCards[i]) {
+        for (final boolean matched : mMatchedCards) {
+            if (!matched) {
                 return false;
             }
         }

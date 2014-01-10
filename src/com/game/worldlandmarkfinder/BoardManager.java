@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import android.util.Log;
 import android.widget.ImageView;
 
 class DBLevel1 {
@@ -21,6 +22,7 @@ class DBLevel1 {
 
 public class BoardManager {
     
+    // TODO: use enum
     static final int CARD_SELECT = 0;
     static final int CARDS_MATCH_SUCCESS = 1;
     static final int CARDS_MATCH_FAILURE = 2;
@@ -28,6 +30,7 @@ public class BoardManager {
     static final int ALL_CARDS_MATCHED = 4;
     
     private Board mBoard;
+    // The position of the card previously selected.  -1 if there is none.
 	private int mPrevCardPosition = -1;
 	private ImageView mPrevImageView = null;
 	
@@ -48,18 +51,22 @@ public class BoardManager {
     }
 	
 	public int clickCard(final ImageView imageView, final int position) {
-	    if(!mBoard.isMatchedCard(position)) {
+	    // If a selected card does not produce a match
+	    if(!mBoard.isPositionAlreadyMatched(position)) {
+	        // If this is the first of two cards selected/flipped
 	        if(mPrevCardPosition == -1) {
                 imageView.setImageResource(mBoard.getCard(position).getId());
                 mPrevCardPosition = position;
                 mPrevImageView = imageView;
                 return CARD_SELECT;
-            } else if(mPrevCardPosition != position){
+            // If this is the second of two cards selected/flipped
+            } else if(mPrevCardPosition != position) {
                 imageView.setImageResource(mBoard.getCard(position).getId());
+ 
                 final int prevCardId = mBoard.getCard(mPrevCardPosition).getId();
-                final int curCardId = mBoard.getCard(position).getId();
+                final int currCardId = mBoard.getCard(position).getId();
                 
-                if(prevCardId == curCardId) {
+                if(prevCardId == currCardId) {
                     mBoard.setMatchedCards(mPrevCardPosition, position);
                     if(mBoard.isCompleted()) {
                         return ALL_CARDS_MATCHED;

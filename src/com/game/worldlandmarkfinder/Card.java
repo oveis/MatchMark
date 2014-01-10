@@ -1,8 +1,8 @@
 package com.game.worldlandmarkfinder;
 
 public class Card {
-	private int mId;
-	private String mName;
+	private final int mId;
+	private final String mName;
 	
 	public Card(final int id, final String name) {
 		mId = id;
