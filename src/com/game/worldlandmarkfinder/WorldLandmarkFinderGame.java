@@ -17,6 +17,7 @@ public class WorldLandmarkFinderGame {
 	private int mNumOfTry = 0;
 	private long mStartTime = 0L;
 	private int mScore = 0;
+	private int mMultiplier;
     
 	private Handler mTimerHandler = new Handler();
 	
@@ -29,7 +30,8 @@ public class WorldLandmarkFinderGame {
 	    mBoardManager = new BoardManager();
 	    mBoardManager.createBoard();
 	    getGameData();
-	    mTimeRemainingMillis = 30000L;
+	    mTimeRemainingMillis = INIT_GAME_TIME;
+	    mMultiplier = 0;
 	}
 	
 	public String getPlayerName() {
@@ -40,16 +42,28 @@ public class WorldLandmarkFinderGame {
 	    return mCurLevel;
 	}
 	
+	public long getTimeRemainingMillis() {
+	    return mTimeRemainingMillis;
+	}
+	
+	public int getNumOfTry() {
+	    return mNumOfTry;
+	}
+	
+	public int getMultiplier() {
+	    return mMultiplier;
+	}
+	
 	public Board getBoard() {
 	    return mBoardManager.getBoard();
 	}
 	
+	public int getScore() {
+        return mScore;
+    }
+    
 	public void getGameData() {
 	    // Get Game Data from DB
-	}
-	
-	public int getScore() {
-	    return mScore;
 	}
 	
 	private void startTimer() {
@@ -68,17 +82,15 @@ public class WorldLandmarkFinderGame {
 	        
 	        if(mTimeRemainingMillis > 0) {
 	            int secs = (int) (mTimeRemainingMillis / 1000);
-	            int mins = secs / 60;
-	            secs %= 60;
-	            int milliseconds = (int) (mTimeRemainingMillis % 1000 / 10);
-	            mGameActivity.setTimerText("" + mins + ":" + String.format("%02d", secs) 
-	                    + ":" + String.format("%02d", milliseconds));
+	            int msecs = (int) (mTimeRemainingMillis % 1000 / 10);
+	            mGameActivity.setTimerText(String.format("%02d:%02d", secs, msecs));
 	            mTimerHandler.postDelayed(this, 0);
 	            if(mTimeRemainingMillis <= 10000L) {
 	                mGameActivity.changeTimerColor("#FF0000");
 	            }
             } else {
-                mGameActivity.setTimerText("0:00:00");
+                mTimeRemainingMillis = 0;
+                mGameActivity.setTimerText("00:00");
                 mScore = 0;
                 gameOver();
             } 

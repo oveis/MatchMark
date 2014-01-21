@@ -56,6 +56,10 @@ public class GameActivity extends Activity {
     public void showScoreScreen() {
         final Intent intentScoreActivity = new Intent(GameActivity.this, ScoreActivity.class);
         intentScoreActivity.putExtra("score", mGame.getScore());
+        intentScoreActivity.putExtra("level", mGame.getCurLevel());
+        intentScoreActivity.putExtra("timeRemaining", mGame.getTimeRemainingMillis());
+        intentScoreActivity.putExtra("numOfTry", mGame.getNumOfTry());
+        intentScoreActivity.putExtra("multiplier", mGame.getMultiplier());
         startActivity(intentScoreActivity);
     }
     

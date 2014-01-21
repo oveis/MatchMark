@@ -12,16 +12,48 @@ import android.util.Log;
 import android.widget.ImageView;
 
 class DBLevel1 {
-    List<Card> mCards = Arrays.asList(new Card(R.drawable.chihuly_gardens, "Chihuly Gardens"),
-            new Card(R.drawable.fremont_troll, "Fremont Troll"), new Card(R.drawable.gas_works_park, "Gas Works Park"),
-            new Card(R.drawable.pike_market, "Pike Market"), new Card(R.drawable.seattle_great_wheel, "Seattle Great Wheel"),
+    List<Card> mCards = Arrays.asList(
+            new Card(R.drawable.chihuly_gardens, "Chihuly Gardens"),
+            new Card(R.drawable.fremont_troll, "Fremont Troll"), 
+            new Card(R.drawable.gas_works_park, "Gas Works Park"),
+            new Card(R.drawable.pike_market, "Pike Market"), 
+            new Card(R.drawable.seattle_great_wheel, "Seattle Great Wheel"),
             new Card(R.drawable.space_needle, "Space Needle"));
     int mDefaultCardId = R.drawable.landmakrs;
     int mBoardRows = 3;
     int mBoardCols = 4;
 }
- 
+
 public class BoardManager {
+    
+    /*
+     * Inner class for the waiting time of two flipped cards
+     */
+    private class FlipCardsBackTask extends AsyncTask {
+        @Override
+        protected Object doInBackground(Object... params) {
+            mIsTwoCardsFlipped = true;
+            try {
+                Thread.sleep(1000);
+            } catch (final InterruptedException e) {
+                e.printStackTrace();
+            } 
+            return null;
+        }
+     
+        @Override
+        protected void onPostExecute(Object obj) {
+            if(!isCancelled()) {
+                flipCardsBack();
+            }
+        }
+        
+        public void flipCardsBack() {
+            mCurrImageView.setImageResource(mBoard.getDefaultCardId());
+            mPrevImageView.setImageResource(mBoard.getDefaultCardId());
+            mIsTwoCardsFlipped = false;
+        }
+    }
     
     // TODO: use enum
     static final int CARD_SELECT = 0;
@@ -35,6 +67,8 @@ public class BoardManager {
 	private int mPrevCardPosition = -1;
 	private ImageView mPrevImageView = null;
 	private ImageView mCurrImageView = null;
+	private boolean mIsTwoCardsFlipped = false;
+	private FlipCardsBackTask mFlipCardsBackTask;
 	
 	public Board getBoard() {
 	    return mBoard;
@@ -52,28 +86,13 @@ public class BoardManager {
         mBoard = new Board(cards, dbLevel1.mDefaultCardId, dbLevel1.mBoardCols, dbLevel1.mBoardRows);
     }
 	
-	private class FlipCardsBackTask extends AsyncTask {
-	    @Override
-        protected Object doInBackground(Object... params) {
-	        Log.d("WLF", "enter doInBackgroud");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-     
-        @Override
-        protected void onPostExecute(Object obj) {
-            Log.d("WLF", "on Post Execution");
-            mCurrImageView.setImageResource(mBoard.getDefaultCardId());
-            mPrevImageView.setImageResource(mBoard.getDefaultCardId());
-            mPrevImageView = null;
-        }
-    }
-	
 	public int clickCard(final ImageView imageView, final int position) {
+	    // If non-matched two cards are flipped, flip back.
+	    if(mIsTwoCardsFlipped) {
+	        mFlipCardsBackTask.cancel(true);
+	        mFlipCardsBackTask.flipCardsBack();
+	    }
+	    
 	    mCurrImageView = imageView;
 	    
 	    // If a selected card does not produce a match
@@ -100,7 +119,8 @@ public class BoardManager {
                     mPrevImageView = null;
                     return CARDS_MATCH_SUCCESS;
                 } else {
-                    new FlipCardsBackTask().execute();
+                    mFlipCardsBackTask = new FlipCardsBackTask();
+                    mFlipCardsBackTask.execute();
                     mPrevCardPosition = -1;
                     return CARDS_MATCH_FAILURE;
                 }                
